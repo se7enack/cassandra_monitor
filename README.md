@@ -1,6 +1,7 @@
 - Push a copy of the docker images:
 >docker build . -t grafana:1.0 && docker push grafana:1.0
-docker build . -t prometheus:1.0 && docker push prometheus:1.0
+
+>docker build . -t prometheus:1.0 && docker push prometheus:1.0
 
 
 - Create k8s cluster namespace:
@@ -25,7 +26,8 @@ docker build . -t prometheus:1.0 && docker push prometheus:1.0
 
 - SSH to the node:
 >sudo su
-cp /tmp/jmx_prometheus_javaagent-0.13.0.jar /usr/share/cassandra/lib/. && chmod 644 /usr/share/cassandra/lib/jmx_prometheus_javaagent-0.13.0.jar && cp /tmp/jmx_exporter.yaml /etc/cassandra/conf/. && chmod 775 /etc/cassandra/conf/jmx_exporter.yaml && chown cassandra:cassandra /etc/cassandra/conf/jmx_exporter.yaml && echo good
+
+>cp /tmp/jmx_prometheus_javaagent-0.13.0.jar /usr/share/cassandra/lib/. && chmod 644 /usr/share/cassandra/lib/jmx_prometheus_javaagent-0.13.0.jar && cp /tmp/jmx_exporter.yaml /etc/cassandra/conf/. && chmod 775 /etc/cassandra/conf/jmx_exporter.yaml && chown cassandra:cassandra /etc/cassandra/conf/jmx_exporter.yaml && echo good
 
 
 - Edit cassandra-env.sh
@@ -38,6 +40,6 @@ cp /tmp/jmx_prometheus_javaagent-0.13.0.jar /usr/share/cassandra/lib/. && chmod 
 
 - Resstart and verify node is up before moving to next node:
 >systemctl restart cassandra
-systemctl status cassandra
-tail /var/log/cassandra/cassandra.log -f
-nodetool status
+>systemctl status cassandra
+>tail /var/log/cassandra/cassandra.log -f
+>nodetool status
