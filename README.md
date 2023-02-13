@@ -33,8 +33,7 @@ cp /tmp/jmx_prometheus_javaagent-0.13.0.jar /usr/share/cassandra/lib/. && chmod 
 
 
 - Put the following under the line with 'jamm':
->#Add jmx exporter
-JVM_OPTS="$JVM_OPTS -javaagent:/usr/share/cassandra/lib/jmx_prometheus_javaagent-0.13.0.jar=7070:/etc/cassandra/conf/jmx_exporter.yaml"
+>JVM_OPTS="$JVM_OPTS -javaagent:/usr/share/cassandra/lib/jmx_prometheus_javaagent-0.13.0.jar=7070:/etc/cassandra/conf/jmx_exporter.yaml"
 
 
 - Resstart and verify node is up before moving to next node:
