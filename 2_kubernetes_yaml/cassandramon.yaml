@@ -1,0 +1,100 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cassandra-mon
+provisioner: disk.csi.azure.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+parameters:
+  skuName: Premium_LRS
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "cassandra-mon-pv1"
+  namespace: "cassandra-mon"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: cassandra-mon
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "cassandra-mon"
+  namespace: "cassandra-mon"
+  labels:
+    app: "cassandra-mon"
+    kubernetes.io/os: linux
+spec:
+  selector:
+    matchLabels:
+      app: "cassandra-mon"
+      kubernetes.io/os: linux
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 100%
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "cassandra-mon"
+        kubernetes.io/os: linux
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "cassandra-mon-pv1"
+      imagePullSecrets:
+      - name: medallia-artifactory
+      containers:
+      - name: grafana
+        volumeMounts:   
+          - name: data
+            mountPath: /var/lib/grafana    
+        image: grafana:1.0
+        imagePullPolicy: Always
+        command: ["/bin/bash"]
+        args: ["/opt/grafana/startup.sh"]
+        ports:
+        - containerPort: 3000
+          name: grafana
+      - name: prometheus
+        volumeMounts:   
+          - name: data
+            mountPath: /data
+        image: prometheus:1.0
+        imagePullPolicy: Always
+        command: ["/bin/bash"]
+        args: ["/etc/prometheus/startup.sh"]
+        ports:
+        - containerPort: 9090
+          name: prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: "cassandra-mon"
+    kubernetes.io/os: linux
+  name: "cassandra-mon"
+  namespace: cassandra-mon
+spec:
+  ports:
+  - name: grafana
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: "cassandra-mon"
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

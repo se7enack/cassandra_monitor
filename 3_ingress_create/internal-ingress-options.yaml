@@ -1,0 +1,7 @@
+# DO NOT DELETE
+# this is used by helm to install an nginx ingress controller on the cluster
+# this will create an internal private IP azure load balancer 
+controller:
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
